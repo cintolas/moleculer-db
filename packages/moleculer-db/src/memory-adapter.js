@@ -56,11 +56,9 @@ class MemoryDbAdapter {
 			const _update = this.db["update"];
 
 			this.db["update"] = util.promisify(function(...args) {
-				return new Promise(() => {
-					const cb = args.pop();
-					return _update.call(this, ...args, (err, ...results) => {
-						return cb(err, results);
-					});
+				const cb = args.pop();
+				return _update.call(this, ...args, (err, ...results) => {
+					return cb(err, results);
 				});
 			});
 			
