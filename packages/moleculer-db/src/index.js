@@ -359,7 +359,7 @@ module.exports = {
 		/**
 		 * Connect to database.
 		 */
-		connect() {
+		async connect() {
 			return this.adapter.connect().then(() => {
 				// Call an 'afterConnected' handler in schema
 				if (_.isFunction(this.schema.afterConnected)) {
