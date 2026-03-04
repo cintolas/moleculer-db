@@ -46,7 +46,7 @@ class MemoryDbAdapter {
 	 * @returns {Promise}
 	 * @memberof MemoryDbAdapter
 	 */
-	connect() {
+	async connect() {
 		if(this.opts instanceof Datastore) 
 			this.db = this.opts; //use preconfigured datastore
 		else 
