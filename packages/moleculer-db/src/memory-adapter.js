@@ -47,25 +47,29 @@ class MemoryDbAdapter {
 	 * @memberof MemoryDbAdapter
 	 */
 	connect() {
-		if(this.opts instanceof Datastore)
+		if(this.opts instanceof Datastore) {
 			this.db = this.opts; //use preconfigured datastore
-		else
+			["loadDatabase", "insert", "findOne", "count", "remove", "ensureIndex", "removeIndex"].forEach(method => {
+				this.db[method] = util.promisify(this.db[method]);
+			});
+
+			const _update = this.db["update"];
+
+			this.db["update"] = util.promisify(function(...args) {
+				return new Promise(() => {
+					const cb = args.pop();
+					return _update.call(this, ...args, (err, ...results) => {
+						return cb(err, results);
+					});
+				});
+			});
+			
+		} else {
 			this.db = new Datastore(this.opts); // in-memory
+			this.db["loadDatabase"] = util.promisify(this.db["loadDatabase"]);
+		}
 
-		["loadDatabase", "insert", "findOne", "count", "remove", "ensureIndex", "removeIndex"].forEach(method => {
-			// this.db[method] = util.promisify(this.db[method]);
-		});
-
-		const _update = this.db["update"];
-
-		// this.db["update"] = util.promisify(function(...args) {
-		// 	return new Promise(() => {
-		// 		const cb = args.pop();
-		// 		return _update.call(this, ...args, (err, ...results) => {
-		// 			return cb(err, results);
-		// 		});
-		// 	});
-		// });
+		
 
 		return this.db.loadDatabase();
 	}
